@@ -1,0 +1,30 @@
+name: 更新 README 添加当前时间
+
+# 防止 action 运行失败，确保工作流始终成功
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # 每周一 00:00 触发（可改为每天 0 点：'0 0 * * *'）
+  workflow_dispatch:
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 获取当前时间
+        id: current-time
+        run: echo "time=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+
+      - name: 在 README 后面添加时间
+        run: echo "最后更新时间：${{ steps.current-time.outputs.time }}" >> README.md
+
+      - name: 提交并推送更新
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: '更新 README 最后更新时间'
+          branch: ${{ github.ref }}
