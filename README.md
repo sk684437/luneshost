@@ -16,3 +16,4 @@
 | `LUNES_SERVER_URL` | ✅ 是 | Luneshost 服务器地址 |
 | `TG_BOT_TOKEN` | ❌ 否 | Telegram Bot Token，不配置则不发送通知 |
 | `TG_CHAT_ID` | ❌ 否 | Telegram Chat ID，不配置则不发送通知 |
+最后更新时间：2026-09-03 08:47:13
