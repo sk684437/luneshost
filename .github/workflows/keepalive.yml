@@ -1,9 +1,8 @@
 name: 更新 README 添加当前时间
 
-# 防止 action 运行失败
 on:
   schedule:
-    - cron: '0 0 * * 1'   # 每周一凌晨 0 点触发（可改成每天：'0 0 * * *'）
+    - cron: '0 0 * * 1'   # 每周一 00:00 UTC 触发（北京时间周一早上 8 点左右实际执行，GitHub 会有延迟）
   workflow_dispatch:
 
 jobs:
@@ -18,18 +17,22 @@ jobs:
       - name: 检出仓库
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}   # 关键！必须写这个
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 获取当前时间
+      - name: 获取当前时间（北京时间）
         id: current-time
-        run: echo "time=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+        run: echo "time=$(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
 
-      - name: 在 README 后面添加时间
-        run: echo "最后更新时间：${{ steps.current-time.outputs.time }}" >> README.md
+      - name: 更新 README 中的时间（替换而不是追加）
+        run: |
+          TIME="${{ steps.current-time.outputs.time }}"
+          # 先删掉所有旧的时间行，再在文件末尾写一行新的
+          sed -i '/最后更新时间：/d' README.md
+          echo "最后更新时间：${TIME}" >> README.md
 
       - name: 提交并推送更新
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: '更新 README 最后更新时间'
           branch: main                    # 改成你的主分支名
-          token: ${{ secrets.GITHUB_TOKEN }}  # 显式传递 token
+          token: ${{ secrets.GITHUB_TOKEN }}
